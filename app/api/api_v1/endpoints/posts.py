@@ -39,6 +39,9 @@ async def create_posts(post_in: schemas.PostCreate):
 
 @router.put("/{title}", status_code=status.HTTP_200_OK)
 async def update_posts(title: str, description: str):
+    """
+    Update a post.
+    """
     for post in posts:
         if post.title == title:
             post.description = description
@@ -46,7 +49,9 @@ async def update_posts(title: str, description: str):
 
 @router.delete("/{title}", response_model=schemas.Post)
 async def delete_posts(title: str):
-
+    """
+    Delete a post.
+    """
     for post in posts:
         if post.title == title:
             posts.remove(post)
