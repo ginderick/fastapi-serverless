@@ -2,12 +2,23 @@ from fastapi import APIRouter, Response
 from starlette import status
 from typing import List, Any
 
+from app import schemas
+from app.schemas import Post
+
 
 router = APIRouter()
 
-posts = {}
+post_1 = Post()
+post_1.title = "HELLO"
+post_1.description = "hello"
 
-@router.get("/")
+post_2 = Post()
+post_2.title = "HI"
+post_2.description = "hi"
+
+posts = [post_1, post_2]
+
+@router.get("/", response_model=List[schemas.Post])
 def read_posts() -> Any:
     """
     Retrieve items.
