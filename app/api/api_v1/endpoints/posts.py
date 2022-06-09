@@ -1,10 +1,13 @@
-from msilib import schema
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Body
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 from typing import List, Any
 
 from app import models
 from app.schemas import Post
+
+import motor.motor_asyncio
 
 
 router = APIRouter()
@@ -19,6 +22,11 @@ post_2.description = "hi"
 
 posts = [post_1, post_2]
 
+MONGODB_URL ="change_this_url"
+
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
+db = client.posts
+collection = db.posts
 
 @router.get("/", response_model=List[models.Post])
 def read_posts() -> Any:
@@ -27,14 +35,19 @@ def read_posts() -> Any:
     """
     return posts
 
-@router.post("/", response_model=models.Post, status_code=status.HTTP_201_CREATED)
-async def create_posts(post_in: models.PostCreate):
+@router.post("/", response_model=models.Post)
+async def create_posts(post: models.Post = Body(...)):
     """
     Create new post.
     """
-    new_post = Post(title=post_in.title, description=post_in.description)
-    posts.append(new_post)
-    return new_post
+    post_json = jsonable_encoder(post)
+
+    new_post = await collection.insert_one(post_json)
+    
+    created_post = await collection.find_one(
+        {"_id": new_post.inserted_id})
+    
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_post)
 
 
 @router.put("/{title}", status_code=status.HTTP_200_OK)
