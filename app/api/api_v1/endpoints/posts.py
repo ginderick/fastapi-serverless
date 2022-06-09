@@ -3,7 +3,7 @@ from fastapi import APIRouter, Response
 from starlette import status
 from typing import List, Any
 
-from app import schemas
+from app import models
 from app.schemas import Post
 
 
@@ -20,15 +20,15 @@ post_2.description = "hi"
 posts = [post_1, post_2]
 
 
-@router.get("/", response_model=List[schemas.Post])
+@router.get("/", response_model=List[models.Post])
 def read_posts() -> Any:
     """
     Retrieve items.
     """
     return posts
 
-@router.post("/", response_model=schemas.Post, status_code=status.HTTP_201_CREATED)
-async def create_posts(post_in: schemas.PostCreate):
+@router.post("/", response_model=models.Post, status_code=status.HTTP_201_CREATED)
+async def create_posts(post_in: models.PostCreate):
     """
     Create new post.
     """
@@ -47,7 +47,7 @@ async def update_posts(title: str, description: str):
             post.description = description
             return post
 
-@router.delete("/{title}", response_model=schemas.Post)
+@router.delete("/{title}", response_model=models.Post)
 async def delete_posts(title: str):
     """
     Delete a post.
